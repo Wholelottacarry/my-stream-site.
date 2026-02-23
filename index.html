@@ -1,27 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WholeLottaCarry Archive</title>
     <style>
-        body { background: #070a0f; color: white; font-family: sans-serif; padding: 40px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; cursor: pointer; }
-        img { width: 100%; border-radius: 5px; }
+        body { background: #0b0e14; color: white; font-family: 'Inter', sans-serif; padding: 40px; }
+        h1 { border-bottom: 2px solid #6441a5; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
+        .card { background: #1a1d23; border-radius: 12px; overflow: hidden; transition: 0.3s; cursor: pointer; border: 1px solid #2d323b; }
+        .card:hover { transform: translateY(-5px); border-color: #6441a5; }
+        .card img { width: 100%; display: block; }
+        .card-info { padding: 15px; }
+        .card-info h3 { margin: 0; font-size: 1.1rem; }
     </style>
 </head>
 <body>
     <h1>WholeLottaCarry Archive</h1>
     <div class="grid" id="grid">Loading streams...</div>
+
     <script>
         async function load() {
-            const res = await fetch('/api/videos');
-            const data = await res.json();
-            document.getElementById('grid').innerHTML = data.map(v => `
-                <div class="card" onclick="window.open('${v.url}')">
-                    <img src="${v.thumbnail_url.replace('%{width}', '400').replace('%{height}', '225')}">
-                    <h3>${v.title}</h3>
-                </div>
-            `).join('');
+            try {
+                // This connects to the /api/videos route in your server.js
+                const res = await fetch('/api/videos');
+                const data = await res.json();
+                
+                if (!data || data.length === 0) {
+                    document.getElementById('grid').innerHTML = "<h3>No videos found. Check your Twitch IDs!</h3>";
+                    return;
+                }
+
+                document.getElementById('grid').innerHTML = data.map(v => `
+                    <div class="card" onclick="window.open('${v.url}')">
+                        <img src="${v.thumbnail_url.replace('%{width}', '400').replace('%{height}', '225')}">
+                        <div class="card-info">
+                            <h3>${v.title}</h3>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById('grid').innerHTML = "<h3>Error connecting to server.</h3>";
+                console.error(err);
+            }
         }
         load();
     </script>
