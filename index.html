@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WholeLottaCarry Archive</title>
+    <style>
+        body { background: #070a0f; color: white; font-family: sans-serif; padding: 40px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; cursor: pointer; }
+        img { width: 100%; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>WholeLottaCarry Archive</h1>
+    <div class="grid" id="grid">Loading streams...</div>
+    <script>
+        async function load() {
+            const res = await fetch('/api/videos');
+            const data = await res.json();
+            document.getElementById('grid').innerHTML = data.map(v => `
+                <div class="card" onclick="window.open('${v.url}')">
+                    <img src="${v.thumbnail_url.replace('%{width}', '400').replace('%{height}', '225')}">
+                    <h3>${v.title}</h3>
+                </div>
+            `).join('');
+        }
+        load();
+    </script>
+</body>
+</html>
