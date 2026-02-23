@@ -6,11 +6,16 @@ const path = require('path');
 
 const app = express();
 
-// 1. PUBLIC ACCESS SETTINGS
+// 1. ALLOW THE SITE TO LOAD FILES
 app.use(cors());
 app.use(express.static(path.join(__dirname)));
 
-// 2. TWITCH CONNECTION ENGINE
+// 2. THE FIX: TELL THE SERVER TO SHOW YOUR HTML
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// 3. TWITCH DATA ENGINE
 async function getTwitchToken() {
     try {
         const res = await axios.post('https://id.twitch.tv/oauth2/token', null, {
@@ -21,12 +26,9 @@ async function getTwitchToken() {
             }
         });
         return res.data.access_token;
-    } catch (err) {
-        return null;
-    }
+    } catch (err) { return null; }
 }
 
-// 3. THE DATA ROUTE
 app.get('/api/videos', async (req, res) => {
     try {
         const token = await getTwitchToken();
@@ -38,18 +40,11 @@ app.get('/api/videos', async (req, res) => {
             }
         });
         res.json(response.data.data);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
-// 4. THE CLOUD PORT FIX (CRITICAL)
-// This line swaps 'localhost' for the Render Public URL
-const PORT = process.env.PORT || 10000; 
-
+// 4. THE RENDER PORT FIX
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`====================================`);
-    console.log(`WHOLELOTTACARRY ARCHIVE IS LIVE`);
-    console.log(`SYSTEM ONLINE ON PORT: ${PORT}`);
-    console.log(`====================================`);
+    console.log(`SYSTEM ONLINE ON PORT ${PORT}`);
 });
